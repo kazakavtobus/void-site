@@ -1,0 +1,32 @@
+[
+  {
+    "slug": "sechenie",
+    "name": "СЕЧЕНИЕ",
+    "type": "Промышленный B2B",
+    "description": "Корпоративный сайт, каталог и интерактивный сборщик заявки.",
+    "status": "draft",
+    "year": "2026",
+    "color": "lime",
+    "sections": []
+  },
+  {
+    "slug": "porog",
+    "name": "ПОРОГ",
+    "type": "Архитектурное бюро",
+    "description": "Авторский сайт с портфолио и выразительной визуальной концепцией.",
+    "status": "planned",
+    "year": "2026",
+    "color": "slate",
+    "sections": []
+  },
+  {
+    "slug": "poluton",
+    "name": "ПОЛУТОН",
+    "type": "Дизайнерское освещение",
+    "description": "Интернет-магазин с демонстрационным конфигуратором товара.",
+    "status": "planned",
+    "year": "2026",
+    "color": "sand",
+    "sections": []
+  }
+]

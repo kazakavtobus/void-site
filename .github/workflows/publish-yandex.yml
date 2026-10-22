@@ -1,0 +1,52 @@
+name: VOID — публикация в Yandex Cloud
+
+# До настройки Object Storage и GitHub Secrets ничего не публикуется.
+# Запускать вручную: Actions -> VOID — публикация в Yandex Cloud -> Run workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_publish:
+        description: 'Подтверждаю обновление production-бакета Yandex Cloud'
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: void-production
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: ${{ inputs.confirm_publish == true }}
+    runs-on: ubuntu-latest
+    environment: production
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.YC_S3_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_S3_SECRET_ACCESS_KEY }}
+      AWS_DEFAULT_REGION: ru-central1
+      AWS_EC2_METADATA_DISABLED: 'true'
+      YC_BUCKET: ${{ secrets.YC_BUCKET }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Tests and static build
+        run: npm run check
+      - name: Check publication credentials and AWS CLI
+        shell: bash
+        run: |
+          test -n "$AWS_ACCESS_KEY_ID" || { echo 'YC_S3_ACCESS_KEY_ID is missing'; exit 1; }
+          test -n "$AWS_SECRET_ACCESS_KEY" || { echo 'YC_S3_SECRET_ACCESS_KEY is missing'; exit 1; }
+          test -n "$YC_BUCKET" || { echo 'YC_BUCKET is missing'; exit 1; }
+          aws --version
+      - name: Upload dist to Object Storage
+        shell: bash
+        run: |
+          aws --endpoint-url https://storage.yandexcloud.net \
+            s3 sync dist/ "s3://${YC_BUCKET}/" --delete --no-progress

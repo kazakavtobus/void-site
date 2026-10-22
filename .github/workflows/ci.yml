@@ -1,0 +1,30 @@
+name: VOID — проверки и сборка
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Tests, build, smoke checks
+        run: npm run check
+      - name: Upload generated site
+        uses: actions/upload-artifact@v4
+        with:
+          name: void-site
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7

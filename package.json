@@ -1,0 +1,16 @@
+{
+  "name": "void-portfolio",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node src/build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "npm run test && npm run build && npm run smoke",
+    "preview": "node src/serve.mjs",
+    "smoke": "node scripts/check-dist.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,13 @@
+# Generated output; GitHub Actions builds it automatically.
+dist/
+node_modules/
+
+# Local files and secrets.
+.DS_Store
+Thumbs.db
+*.log
+.env
+.env.*
+!.env.example
+.vscode/
+.idea/
