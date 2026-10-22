@@ -28,7 +28,7 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_S3_SECRET_ACCESS_KEY }}
       AWS_DEFAULT_REGION: ru-central1
       AWS_EC2_METADATA_DISABLED: 'true'
-      YC_BUCKET: ${{ secrets.YC_BUCKET }}
+      YC_BUCKET: tvoykazak
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -45,8 +45,17 @@ jobs:
           test -n "$AWS_SECRET_ACCESS_KEY" || { echo 'YC_S3_SECRET_ACCESS_KEY is missing'; exit 1; }
           test -n "$YC_BUCKET" || { echo 'YC_BUCKET is missing'; exit 1; }
           aws --version
+          test "$YC_BUCKET" = "tvoykazak" || { echo "Unexpected bucket"; exit 1; }
       - name: Upload dist to Object Storage
         shell: bash
         run: |
           aws --endpoint-url https://storage.yandexcloud.net \
-            s3 sync dist/ "s3://${YC_BUCKET}/" --delete --no-progress
+            s3 sync dist/ "s3://${YC_BUCKET}/" --no-progress
+      - name: Publication summary
+        if: success()
+        shell: bash
+        run: |
+          echo "### Uploaded to Yandex Object Storage" >> "$GITHUB_STEP_SUMMARY"
+          echo "Bucket: \`tvoykazak\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "Expected website URL (requires public read and website hosting): https://tvoykazak.website.yandexcloud.net/" >> "$GITHUB_STEP_SUMMARY"
+          echo "Note: upload succeeded; public website availability still needs a live check." >> "$GITHUB_STEP_SUMMARY"
