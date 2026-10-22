@@ -37,6 +37,14 @@ for (const name of present) {
   const html = await readFile(path.join(dist, name), 'utf8');
   if (!html.includes('<html lang="ru">') || !html.includes('<main id="main"')) missing.push(`Basic HTML structure missing: ${name}`);
   if (name === '404.html' && !html.includes('noindex,follow')) missing.push('404.html must not be indexed');
+  if (/<title>[^<]*VOID/i.test(html) || /<a[^>]*class="logo"[^>]*>void/i.test(html)) missing.push(`Old public brand found: ${name}`);
+  if (html.includes('mailto:')) missing.push(`Email CTA must not remain: ${name}`);
+  if (!html.includes('href="https://t.me/tvoykazak"')) missing.push(`Telegram personal contact is missing: ${name}`);
+  if (!html.includes('href="https://t.me/kazakblog"')) missing.push(`Telegram channel is missing: ${name}`);
+  const shortWord = /(^|[\s.,;:!?«“(—])(?:для|без|при|под|над|про|перед|меж|через|или|что|как|не|на|по|из|за|во|ко|со|до|от|об|но|то|же|ли|а|в|к|о|с|у|и) +(?=[А-Яа-яЁё0-9])/giu;
+  const textNodes = html.split(/(<[^>]*>)/g).filter((_, index) => index % 2 === 0);
+  if (textNodes.some(text => shortWord.test(text))) missing.push(`Possible orphan short preposition: ${name}`);
+
   for (const match of html.matchAll(/\b(?:href|src)="([^"]+)"/g)) {
     const href = match[1].replaceAll('&amp;', '&');
     if (/^(?:https?:|mailto:|tel:|data:|#)/i.test(href)) continue;
@@ -62,5 +70,5 @@ if (missing.length) {
   for (const issue of missing) console.error('FAIL:', issue);
   process.exitCode = 1;
 } else {
-  console.log(`VOID smoke: ${htmlPages} HTML pages, ${links} relative references checked, no broken links.`);
+  console.log(`твой казак smoke: ${htmlPages} HTML pages, ${links} relative references checked, no broken links.`);
 }

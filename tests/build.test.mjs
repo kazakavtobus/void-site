@@ -7,6 +7,6 @@ const site=JSON.parse(await readFile(path.join(dir,'content/site.json'),'utf8'))
 const projects=JSON.parse(await readFile(path.join(dir,'content/projects.json'),'utf8'));
 test('valid URL slugs unique',()=>{const seen=new Set();for(const p of projects){assert.match(p.slug,/^[a-z0-9-]+$/);assert(!seen.has(p.slug));seen.add(p.slug)}});
 test('status is explicit, published project has content',()=>{for(const p of projects){assert(['draft','planned','published'].includes(p.status));if(p.status==='published')assert(p.sections?.length>0)}});
-test('only own contact email is configured',()=>{assert.match(site.email,/^[^\s@]+@[^\s@]+\.[^\s@]+$/)});
+test('public identity and contact channels are configured',()=>{assert.equal(site.brand,'твой казак');assert.equal(site.telegram,'https://t.me/tvoykazak');assert.equal(site.telegramChannel,'https://t.me/kazakblog')});
 test('no fabricated performance claims in site content',()=>{const content=JSON.stringify({site,projects});assert(!/100%|\d+ клиентов|\d+ млн/i.test(content))});
 test('all expected service and navigation anchors in templates',async()=>{const code=await readFile(path.join(dir,'src/build.mjs'),'utf8');for(const section of ['services','projects','about','contact'])assert(code.includes(`id=\\"${section}\\"`)||code.includes(`id="${section}"`))});
